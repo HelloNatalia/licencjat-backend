@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AnnouncementService } from './announcement.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -32,5 +40,10 @@ export class AnnouncementController {
     @Query() getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
   ): Promise<Announcement[]> {
     return this.announcementService.getAnnouncements(getAnnouncementsFilterDto);
+  }
+
+  @Get(':id')
+  getAnnouncement(@Param('id') id: string): Promise<Announcement> {
+    return this.announcementService.getAnnouncement(id);
   }
 }

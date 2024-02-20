@@ -45,4 +45,9 @@ export class ProductService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getProductsList(): Promise<Product[]> {
+    const products = await this.productsRepository.find();
+    return products;
+  }
 }

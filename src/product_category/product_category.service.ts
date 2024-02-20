@@ -40,4 +40,9 @@ export class ProductCategoryService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getCategoriesList(): Promise<ProductCategory[]> {
+    const categories = await this.productCategoriesRepository.find();
+    return categories;
+  }
 }

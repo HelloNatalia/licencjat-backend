@@ -113,4 +113,19 @@ export class AnnouncementService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getAnnouncement(id: string): Promise<Announcement> {
+    try {
+      const announcement = await this.announcementsRepository.findOneBy({
+        id_announcement: id,
+      });
+      if (!announcement) {
+        throw new NotFoundException(`Announcement with id: ${id} not found`);
+      }
+      return announcement;
+    } catch (error) {
+      console.log(error.message);
+      throw new NotFoundException(`Announcement with id: ${id} not found`);
+    }
+  }
 }
