@@ -46,4 +46,7 @@ export class Announcement {
 
   @Column()
   photos: string;
+
+  @Column()
+  date: Date;
 }
