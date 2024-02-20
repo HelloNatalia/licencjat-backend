@@ -10,6 +10,7 @@ import { Product } from 'src/product/product.entity';
 import { ProductCategory } from 'src/product_category/product_category.entity';
 import { CreateAnnouncementDto } from './dto/createAnnouncementDto';
 import { User } from 'src/auth/user.entity';
+import { GetAnnouncementsFilterDto } from './dto/getAnnouncementsFilterDto';
 
 @Injectable()
 export class AnnouncementService {
@@ -70,6 +71,43 @@ export class AnnouncementService {
     try {
       await this.announcementsRepository.save(announcement);
       return announcement;
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  async getAnnouncements(
+    getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
+  ): Promise<Announcement[]> {
+    const { search, product_id, product_category_id } =
+      getAnnouncementsFilterDto;
+
+    const query =
+      this.announcementsRepository.createQueryBuilder('announcement');
+    if (search) {
+      query.andWhere(
+        '(LOWER(announcement.title) LIKE LOWER(:search) OR LOWER(announcement.description) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+    if (product_id) {
+      query.andWhere('(announcement.productIdProduct = :product_id)', {
+        product_id,
+      });
+    }
+    if (product_category_id) {
+      query.andWhere(
+        '(announcement.productCategoryIdProductCategory = :product_category_id)',
+        {
+          product_category_id,
+        },
+      );
+    }
+
+    try {
+      const announcements = await query.getMany();
+      return announcements;
     } catch (error) {
       console.log(error.message);
       throw new InternalServerErrorException('Something went wrong');
