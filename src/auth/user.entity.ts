@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from './role.enum';
 import { Address } from 'src/address/address.entity';
+import { Announcement } from 'src/announcement/announcement.entity';
 
 @Entity()
 export class User {
@@ -35,4 +36,7 @@ export class User {
 
   @OneToMany(() => Address, (address) => address.user)
   address: Address;
+
+  @OneToMany(() => Announcement, (announcement) => announcement.user)
+  announcement: Announcement;
 }
