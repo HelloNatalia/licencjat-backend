@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+import { AddressController } from './address/address.controller';
+import { AddressService } from './address/address.service';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
     }),
     AuthModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
