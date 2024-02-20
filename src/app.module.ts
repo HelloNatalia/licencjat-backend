@@ -2,12 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
-import { AddressController } from './address/address.controller';
-import { AddressService } from './address/address.service';
 import { AddressModule } from './address/address.module';
+import { ProductModule } from './product/product.module';
+import { ProductCategoryModule } from './product_category/product_category.module';
+import { AnnouncementModule } from './announcement/announcement.module';
 
 @Module({
   imports: [
@@ -23,6 +22,9 @@ import { AddressModule } from './address/address.module';
     }),
     AuthModule,
     AddressModule,
+    ProductModule,
+    ProductCategoryModule,
+    AnnouncementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
