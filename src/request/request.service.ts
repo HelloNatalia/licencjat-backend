@@ -55,4 +55,14 @@ export class RequestService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getReceivedRequests(user: User): Promise<Request[]> {
+    const requests = this.requestsRepository.find({
+      where: {
+        id_user_announcement: { id: user.id },
+      },
+    });
+
+    return requests;
+  }
 }
