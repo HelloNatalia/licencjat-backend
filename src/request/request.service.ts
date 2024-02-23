@@ -57,10 +57,22 @@ export class RequestService {
   }
 
   async getReceivedRequests(user: User): Promise<Request[]> {
-    const requests = this.requestsRepository.find({
+    const requests = await this.requestsRepository.find({
       where: {
         id_user_announcement: { id: user.id },
       },
+      relations: ['id_user_request', 'announcement', 'id_user_announcement'],
+    });
+
+    return requests;
+  }
+
+  async getSentRequests(user: User): Promise<Request[]> {
+    const requests = await this.requestsRepository.find({
+      where: {
+        id_user_request: { id: user.id },
+      },
+      relations: ['id_user_request', 'announcement', 'id_user_announcement'],
     });
 
     return requests;

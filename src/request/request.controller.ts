@@ -27,4 +27,9 @@ export class RequestController {
   getReceivedRequests(@GetUser() user: User): Promise<Request[]> {
     return this.requestService.getReceivedRequests(user);
   }
+
+  @Get('sent-requests')
+  getSentRequests(@GetUser() user: User): Promise<Request[]> {
+    return this.requestService.getSentRequests(user);
+  }
 }
