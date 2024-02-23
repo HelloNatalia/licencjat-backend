@@ -85,6 +85,9 @@ export class AnnouncementService {
 
     const query =
       this.announcementsRepository.createQueryBuilder('announcement');
+
+    query.leftJoinAndSelect('announcement.user', 'user');
+
     if (search) {
       query.andWhere(
         '(LOWER(announcement.title) LIKE LOWER(:search) OR LOWER(announcement.description) LIKE LOWER(:search))',
@@ -116,8 +119,11 @@ export class AnnouncementService {
 
   async getAnnouncement(id: string): Promise<Announcement> {
     try {
-      const announcement = await this.announcementsRepository.findOneBy({
-        id_announcement: id,
+      const announcement = await this.announcementsRepository.findOne({
+        where: {
+          id_announcement: id,
+        },
+        relations: ['user', 'product_category', 'product'],
       });
       if (!announcement) {
         throw new NotFoundException(`Announcement with id: ${id} not found`);
