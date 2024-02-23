@@ -7,6 +7,7 @@ import { AddressModule } from './address/address.module';
 import { ProductModule } from './product/product.module';
 import { ProductCategoryModule } from './product_category/product_category.module';
 import { AnnouncementModule } from './announcement/announcement.module';
+import { RequestModule } from './request/request.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AnnouncementModule } from './announcement/announcement.module';
     ProductModule,
     ProductCategoryModule,
     AnnouncementModule,
+    RequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
