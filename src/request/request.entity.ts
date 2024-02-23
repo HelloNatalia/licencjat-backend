@@ -20,8 +20,7 @@ export class Request {
   @Column({
     type: 'enum',
     enum: Status,
-    array: true,
-    default: [Status.Sent],
+    default: Status.Sent,
   })
   status: Status;
 
