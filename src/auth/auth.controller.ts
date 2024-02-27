@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupAuthCredentialsDto } from './dto/signup-auth-credentials.dto';
 import { SigninAuthCredentialsDto } from './dto/signin-auth-credentials.dto';
@@ -37,5 +45,12 @@ export class AuthController {
   @Get('user-data/:id')
   getSpecificUserData(@Param('id') id: string): Promise<User> {
     return this.authService.getSpecificUserData(id);
+  }
+
+  @Roles(Role.Client)
+  @Get('is-loggedin')
+  isLoggedIn(@GetUser() user: User): void {
+    if (user !== null) return;
+    else throw new UnauthorizedException();
   }
 }

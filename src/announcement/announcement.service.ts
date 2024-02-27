@@ -11,6 +11,7 @@ import { ProductCategory } from 'src/product_category/product_category.entity';
 import { CreateAnnouncementDto } from './dto/createAnnouncementDto';
 import { User } from 'src/auth/user.entity';
 import { GetAnnouncementsFilterDto } from './dto/getAnnouncementsFilterDto';
+import { Request } from 'src/request/request.entity';
 
 @Injectable()
 export class AnnouncementService {
@@ -21,6 +22,8 @@ export class AnnouncementService {
     private productRepository: Repository<Product>,
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
+    @InjectRepository(Request)
+    private requestRepository: Repository<Request>,
   ) {}
 
   async createAnnouncement(
@@ -132,6 +135,37 @@ export class AnnouncementService {
     } catch (error) {
       console.log(error.message);
       throw new NotFoundException(`Announcement with id: ${id} not found`);
+    }
+  }
+
+  async getMyAnnouncements(user: User): Promise<Announcement[]> {
+    const announcements = await this.announcementsRepository.findBy({ user });
+    return announcements;
+  }
+
+  async deleteAnnouncement(user: User, id: string): Promise<void> {
+    let announcement: Announcement | null;
+    try {
+      announcement = await this.announcementsRepository.findOne({
+        where: {
+          id_announcement: id,
+          user,
+        },
+        relations: ['user'],
+      });
+    } catch (error) {
+      throw new NotFoundException('Selected announcement not found');
+    }
+
+    if (announcement === null)
+      throw new NotFoundException(`Selected announcement not found`);
+
+    try {
+      await this.requestRepository.delete({ announcement: announcement });
+      await this.announcementsRepository.remove(announcement);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 }

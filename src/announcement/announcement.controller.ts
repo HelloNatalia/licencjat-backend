@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -42,8 +43,22 @@ export class AnnouncementController {
     return this.announcementService.getAnnouncements(getAnnouncementsFilterDto);
   }
 
+  @Roles(Role.Client)
+  @Get('my-announcements')
+  getMyAnnouncements(@GetUser() user: User): Promise<Announcement[]> {
+    return this.announcementService.getMyAnnouncements(user);
+  }
+
   @Get(':id')
   getAnnouncement(@Param('id') id: string): Promise<Announcement> {
     return this.announcementService.getAnnouncement(id);
+  }
+
+  @Delete(':id')
+  deleteAnnouncement(
+    @GetUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.announcementService.deleteAnnouncement(user, id);
   }
 }
