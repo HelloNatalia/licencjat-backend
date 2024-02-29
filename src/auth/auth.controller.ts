@@ -47,10 +47,12 @@ export class AuthController {
     return this.authService.getSpecificUserData(id);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Client)
   @Get('is-loggedin')
   isLoggedIn(@GetUser() user: User): void {
-    if (user !== null) return;
-    else throw new UnauthorizedException();
+    if (!user) {
+      throw new UnauthorizedException();
+    } else return;
   }
 }
