@@ -168,4 +168,60 @@ export class AnnouncementService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async editAnnouncement(
+    user: User,
+    id: string,
+    createAnnouncementDto: CreateAnnouncementDto,
+  ): Promise<void> {
+    const {
+      title,
+      description,
+      district,
+      city,
+      street,
+      number,
+      coordinates,
+      available_dates,
+      product_category,
+      product,
+      date,
+    } = createAnnouncementDto;
+
+    const announcement = await this.announcementsRepository.findOneBy({
+      id_announcement: id,
+    });
+    if (!announcement) {
+      throw new NotFoundException('Selected announcement not found');
+    }
+
+    const productObj = await this.productRepository.findOneBy({
+      id_product: product,
+    });
+    const categoryObj = await this.productCategoryRepository.findOneBy({
+      id_product_category: product_category,
+    });
+    if (!productObj || !categoryObj) {
+      throw new NotFoundException('Selected product or category is wrong.');
+    }
+
+    announcement.title = title;
+    announcement.description = description;
+    announcement.district = district;
+    announcement.city = city;
+    announcement.street = street;
+    announcement.number = number;
+    announcement.coordinates = coordinates;
+    announcement.available_dates = available_dates;
+    announcement.product_category = categoryObj;
+    announcement.product = productObj;
+    announcement.date = date;
+
+    try {
+      await this.announcementsRepository.save(announcement);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
 }

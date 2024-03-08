@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -43,6 +44,7 @@ export class AnnouncementController {
     return this.announcementService.getAnnouncements(getAnnouncementsFilterDto);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Client)
   @Get('my-announcements')
   getMyAnnouncements(@GetUser() user: User): Promise<Announcement[]> {
@@ -60,5 +62,20 @@ export class AnnouncementController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.announcementService.deleteAnnouncement(user, id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Patch('edit/:id')
+  editAnnouncement(
+    @GetUser() user: User,
+    @Param('id') id: string,
+    @Body() createAnnouncementDto: CreateAnnouncementDto,
+  ): Promise<void> {
+    return this.announcementService.editAnnouncement(
+      user,
+      id,
+      createAnnouncementDto,
+    );
   }
 }
