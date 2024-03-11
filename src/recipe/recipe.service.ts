@@ -1,10 +1,17 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './recipe.entity';
 import { Repository } from 'typeorm';
 import { RecipeCategory } from './recipe-category.entity';
 import { RecipeProduct } from './recipe-product.entity';
 import { CreateRecipeCategoryDto } from './dto/createRecipeCategoryDto';
+import { CreateRecipeDto } from './dto/createRecipeDto';
+import { Product } from 'src/product/product.entity';
+import { FilterRecipesDto } from './dto/filterRecipesDto';
 
 @Injectable()
 export class RecipeService {
@@ -17,6 +24,9 @@ export class RecipeService {
 
     @InjectRepository(RecipeProduct)
     private recipeProductRepository: Repository<RecipeProduct>,
+
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
   ) {}
 
   async createRecipeCategory(
@@ -35,5 +45,133 @@ export class RecipeService {
       console.log(error.message);
       throw new InternalServerErrorException('Something went wrong');
     }
+  }
+
+  async createRecipe(createRecipeDto: CreateRecipeDto): Promise<void> {
+    const { title, text, photos, id_recipe_category, list_id_products } =
+      createRecipeDto;
+
+    const recipeCategory = await this.recipeCategoryRepository.findOneBy({
+      id_recipe_category,
+    });
+
+    if (!recipeCategory) {
+      throw new NotFoundException('Recipe category not found');
+    }
+
+    const listProducts: Product[] = [];
+    list_id_products.map(async (element: string) => {
+      const product = await this.productRepository.findOneBy({
+        id_product: element,
+      });
+      if (product) {
+        listProducts.push(product);
+      }
+    });
+
+    const recipe = this.recipeRepository.create({
+      title,
+      text,
+      photos,
+      recipe_category: recipeCategory,
+    });
+
+    try {
+      await this.recipeRepository.save(recipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    listProducts.map(async (element) => {
+      const recipeProduct = this.recipeProductRepository.create({
+        recipe,
+        product: element,
+      });
+      try {
+        await this.recipeProductRepository.save(recipeProduct);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    });
+  }
+
+  async getAllRecipes(): Promise<RecipeProduct[]> {
+    const recipes = this.recipeProductRepository.find({
+      where: {},
+      relations: ['recipe', 'product'],
+    });
+    return recipes;
+  }
+
+  async getRecipes(filterRecipesDto: FilterRecipesDto): Promise<any[]> {
+    const { products_list, id_recipe_category } = filterRecipesDto;
+
+    const query =
+      this.recipeProductRepository.createQueryBuilder('recipe_product');
+    query.leftJoinAndSelect('recipe_product.recipe', 'recipe');
+    query.leftJoinAndSelect('recipe_product.product', 'product');
+
+    if (id_recipe_category) {
+      query.andWhere(
+        '(recipe.recipeCategoryIdRecipeCategory = :id_recipe_category)',
+        {
+          id_recipe_category,
+        },
+      );
+    }
+
+    if (products_list && products_list.length > 0) {
+      query.andWhere('recipe_product.productIdProduct IN (:...products_list)', {
+        products_list,
+      });
+    }
+
+    const records = await query.getMany();
+
+    const updatedRecords: any[] = [];
+    for (const element of records) {
+      const existed = updatedRecords.find(
+        (record) => record.id_recipe === element.recipe.id_recipe,
+      );
+
+      if (existed !== undefined) {
+        const total: number = existed.all_products;
+        existed.have += 1;
+        const have: number = existed.have;
+        let missing: number = total - have;
+        if (Number.isNaN(missing)) missing = 0;
+        existed.missing = missing;
+      } else {
+        const products_db = await this.recipeProductRepository.find({
+          where: {
+            recipe: element.recipe,
+          },
+          relations: ['recipe', 'product'],
+        });
+        const productsArray: string[] = [];
+        products_db.map((prod) => {
+          productsArray.push(prod.product.id_product);
+        });
+        const total: number = productsArray.length;
+        const have: number = 1;
+        let missing: number = total - have;
+        if (Number.isNaN(missing)) missing = 0;
+
+        updatedRecords.push({
+          id_recipe: element.recipe.id_recipe,
+          title: element.recipe.title,
+          text: element.recipe.text,
+          photos: element.recipe.photos,
+          products: productsArray,
+          total: total,
+          have: have,
+          missing: missing,
+        });
+      }
+    }
+
+    return updatedRecords;
   }
 }
