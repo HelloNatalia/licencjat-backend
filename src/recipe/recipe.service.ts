@@ -108,6 +108,9 @@ export class RecipeService {
   async getRecipes(filterRecipesDto: FilterRecipesDto): Promise<any[]> {
     const { products_list, id_recipe_category } = filterRecipesDto;
 
+    if (!products_list || products_list.length === 0) {
+      return [];
+    }
     const query =
       this.recipeProductRepository.createQueryBuilder('recipe_product');
     query.leftJoinAndSelect('recipe_product.recipe', 'recipe');
@@ -173,5 +176,49 @@ export class RecipeService {
     }
 
     return updatedRecords;
+  }
+
+  async getRecipesCategories(): Promise<RecipeCategory[]> {
+    const categories = await this.recipeCategoryRepository.find();
+
+    return categories;
+  }
+
+  async getSpecificRecipe(id: string): Promise<RecipeProduct[]> {
+    let recipe;
+    try {
+      recipe = await this.recipeRepository.findOneBy({ id_recipe: id });
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+    if (!recipe) {
+      throw new NotFoundException('Selected recipe not found');
+    }
+    const recipeProduct = await this.recipeProductRepository.find({
+      where: { recipe },
+      relations: ['recipe', 'product'],
+    });
+    if (!recipeProduct) {
+      throw new NotFoundException('Selected recipe not found');
+    }
+    return recipeProduct;
+  }
+
+  async getOnlyRecipeData(id: string): Promise<Recipe> {
+    let recipe;
+    try {
+      recipe = await this.recipeRepository.findOne({
+        where: { id_recipe: id },
+        relations: ['recipe_category'],
+      });
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+    if (!recipe) {
+      throw new NotFoundException('Selected recipe not found');
+    }
+    return recipe;
   }
 }
