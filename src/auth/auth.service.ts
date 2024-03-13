@@ -75,4 +75,13 @@ export class AuthService {
 
     return user;
   }
+
+  async deleteAccount(user: User): Promise<void> {
+    try {
+      await this.usersRepository.remove(user);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
 }

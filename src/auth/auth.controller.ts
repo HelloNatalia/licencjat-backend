@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -54,5 +55,12 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException();
     } else return;
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Delete('delete-account')
+  deleteAccount(@GetUser() user: User): Promise<void> {
+    return this.authService.deleteAccount(user);
   }
 }
