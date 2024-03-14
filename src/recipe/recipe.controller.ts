@@ -21,6 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/role.enum';
+import { FavouriteRecipe } from './favourite-recipe.entity';
 
 @Controller('recipe')
 export class RecipeController {
@@ -51,6 +52,13 @@ export class RecipeController {
   @Get('recipes-categories')
   getRecipesCaregories(): Promise<RecipeCategory[]> {
     return this.recipeService.getRecipesCategories();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('/favourites')
+  getFavourites(@GetUser() user: User): Promise<FavouriteRecipe[]> {
+    return this.recipeService.getFavourites(user);
   }
 
   @Get(':id')

@@ -288,4 +288,15 @@ export class RecipeService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getFavourites(user: User): Promise<FavouriteRecipe[]> {
+    const favourites = await this.favouriteRecipeRepository.find({
+      where: {
+        user,
+      },
+      relations: ['recipe'],
+    });
+
+    return favourites;
+  }
 }
