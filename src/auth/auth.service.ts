@@ -84,4 +84,28 @@ export class AuthService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async editAccount(
+    user: User,
+    signupAuthCredentialsDto: SignupAuthCredentialsDto,
+  ): Promise<void> {
+    const { username, password_hash, name, surname, email, phone_number } =
+      signupAuthCredentialsDto;
+
+    if (user && (await bcrypt.compare(password_hash, user.password_hash))) {
+      user.username = username;
+      user.name = name;
+      user.surname = surname;
+      user.email = email;
+      user.phone_number = phone_number;
+      try {
+        this.usersRepository.save(user);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    } else {
+      throw new UnauthorizedException('Please, check your login credentials');
+    }
+  }
 }
