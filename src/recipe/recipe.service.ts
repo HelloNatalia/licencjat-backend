@@ -12,6 +12,9 @@ import { CreateRecipeCategoryDto } from './dto/createRecipeCategoryDto';
 import { CreateRecipeDto } from './dto/createRecipeDto';
 import { Product } from 'src/product/product.entity';
 import { FilterRecipesDto } from './dto/filterRecipesDto';
+import { AddToFavouriteDto } from './dto/addToFavouriteDto';
+import { User } from 'src/auth/user.entity';
+import { FavouriteRecipe } from './favourite-recipe.entity';
 
 @Injectable()
 export class RecipeService {
@@ -27,6 +30,9 @@ export class RecipeService {
 
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+
+    @InjectRepository(FavouriteRecipe)
+    private favouriteRecipeRepository: Repository<FavouriteRecipe>,
   ) {}
 
   async createRecipeCategory(
@@ -220,5 +226,66 @@ export class RecipeService {
       throw new NotFoundException('Selected recipe not found');
     }
     return recipe;
+  }
+
+  async addFavouriteRecipe(
+    user: User,
+    addToFavouriteDto: AddToFavouriteDto,
+  ): Promise<void> {
+    const { id_recipe } = addToFavouriteDto;
+
+    const recipe = await this.recipeRepository.findOneBy({ id_recipe });
+    if (!recipe || !user) {
+      throw new NotFoundException('Selected recipe or user not found');
+    }
+
+    const favouriteRecipe = this.favouriteRecipeRepository.create({
+      user,
+      recipe,
+    });
+
+    try {
+      this.favouriteRecipeRepository.save(favouriteRecipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  async checkIfFavourite(user: User, id: string): Promise<any> {
+    const recipe = await this.recipeRepository.findOneBy({ id_recipe: id });
+    if (!recipe) throw new NotFoundException('Selected recipe not found');
+
+    const favourite = await this.favouriteRecipeRepository.findOne({
+      where: {
+        recipe,
+        user,
+      },
+    });
+
+    if (favourite) return { is_favourite: true };
+    else return { is_favourite: false };
+  }
+
+  async deleteFavourite(user: User, id: string): Promise<void> {
+    const recipe = await this.recipeRepository.findOneBy({ id_recipe: id });
+    if (!recipe) throw new NotFoundException('Selected recipe not found');
+
+    const favouriteRecipe = await this.favouriteRecipeRepository.findOne({
+      where: {
+        user,
+        recipe,
+      },
+    });
+
+    if (!favouriteRecipe)
+      throw new NotFoundException('Selected favourite recipe not found');
+
+    try {
+      await this.favouriteRecipeRepository.remove(favouriteRecipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 }

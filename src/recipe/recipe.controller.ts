@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeCategoryDto } from './dto/createRecipeCategoryDto';
 import { CreateRecipeDto } from './dto/createRecipeDto';
@@ -6,6 +14,13 @@ import { Recipe } from './recipe.entity';
 import { RecipeProduct } from './recipe-product.entity';
 import { FilterRecipesDto } from './dto/filterRecipesDto';
 import { RecipeCategory } from './recipe-category.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
+import { AddToFavouriteDto } from './dto/addToFavouriteDto';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/role.enum';
 
 @Controller('recipe')
 export class RecipeController {
@@ -46,5 +61,34 @@ export class RecipeController {
   @Get('only-recipe/:id')
   getOnlyRecipeData(@Param('id') id: string): Promise<Recipe> {
     return this.recipeService.getOnlyRecipeData(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Post('add-to-favourite')
+  addFavouriteRecipe(
+    @GetUser() user: User,
+    @Body() addToFavouriteDto: AddToFavouriteDto,
+  ): Promise<void> {
+    console.log(user);
+    return this.recipeService.addFavouriteRecipe(user, addToFavouriteDto);
+  }
+
+  @Get('is-favourite/:id')
+  checkIfFavourite(
+    @GetUser() user: User,
+    @Param('id') id: string,
+  ): Promise<any> {
+    return this.recipeService.checkIfFavourite(user, id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Delete('delete-favourite/:id')
+  deleteFavourite(
+    @GetUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.recipeService.deleteFavourite(user, id);
   }
 }

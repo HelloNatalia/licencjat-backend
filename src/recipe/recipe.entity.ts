@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { RecipeCategory } from './recipe-category.entity';
 import { RecipeProduct } from './recipe-product.entity';
+import { FavouriteRecipe } from './favourite-recipe.entity';
 
 @Entity()
 export class Recipe {
@@ -27,4 +28,10 @@ export class Recipe {
 
   @OneToMany(() => RecipeProduct, (recipe_product) => recipe_product.recipe)
   recipe_product: RecipeProduct;
+
+  @OneToMany(
+    () => FavouriteRecipe,
+    (favourite_recipe) => favourite_recipe.recipe,
+  )
+  favourite_recipe: FavouriteRecipe;
 }
