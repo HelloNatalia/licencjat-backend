@@ -22,6 +22,8 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/role.enum';
 import { FavouriteRecipe } from './favourite-recipe.entity';
+import { TemporaryRecipeProduct } from './temporary-recipe-product.entity';
+import { TemporaryRecipe } from './temporary-recipe.entity';
 
 @Controller('recipe')
 export class RecipeController {
@@ -71,6 +73,13 @@ export class RecipeController {
   @Get('/favourites')
   getFavourites(@GetUser() user: User): Promise<FavouriteRecipe[]> {
     return this.recipeService.getFavourites(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('my-recipe-propositions')
+  getMyRecipePropositions(@GetUser() user: User): Promise<TemporaryRecipe[]> {
+    return this.recipeService.getMyRecipePropositions(user);
   }
 
   @Get(':id')

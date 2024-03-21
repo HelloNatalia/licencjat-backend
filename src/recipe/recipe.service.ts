@@ -364,4 +364,14 @@ export class RecipeService {
 
     return favourites;
   }
+
+  async getMyRecipePropositions(user: User): Promise<TemporaryRecipe[]> {
+    const recipes = await this.temporaryRecipeRepository.find({
+      where: {
+        user: user,
+      },
+    });
+
+    return recipes;
+  }
 }
