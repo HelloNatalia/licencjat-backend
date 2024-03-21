@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   UnauthorizedException,
   UseGuards,
@@ -54,5 +56,22 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException();
     } else return;
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Delete('delete-account')
+  deleteAccount(@GetUser() user: User): Promise<void> {
+    return this.authService.deleteAccount(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Patch('edit-account')
+  editAccount(
+    @GetUser() user: User,
+    @Body() signupAuthCredentialsDto: SignupAuthCredentialsDto,
+  ): Promise<void> {
+    return this.authService.editAccount(user, signupAuthCredentialsDto);
   }
 }

@@ -8,6 +8,7 @@ import { ProductModule } from './product/product.module';
 import { ProductCategoryModule } from './product_category/product_category.module';
 import { AnnouncementModule } from './announcement/announcement.module';
 import { RequestModule } from './request/request.module';
+import { RecipeModule } from './recipe/recipe.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RequestModule } from './request/request.module';
     ProductCategoryModule,
     AnnouncementModule,
     RequestModule,
+    RecipeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
