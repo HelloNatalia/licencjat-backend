@@ -10,6 +10,7 @@ import { AnnouncementModule } from './announcement/announcement.module';
 import { RequestModule } from './request/request.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { ReportModule } from './report/report.module';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ReportModule } from './report/report.module';
     RequestModule,
     RecipeModule,
     ReportModule,
+    RatingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

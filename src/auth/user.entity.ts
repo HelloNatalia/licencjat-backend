@@ -5,6 +5,7 @@ import { Announcement } from 'src/announcement/announcement.entity';
 import { FavouriteRecipe } from 'src/recipe/favourite-recipe.entity';
 import { TemporaryRecipe } from 'src/recipe/temporary-recipe.entity';
 import { Report } from 'src/report/report.entity';
+import { Rating } from 'src/rating/rating.entity';
 
 @Entity()
 export class User {
@@ -54,4 +55,10 @@ export class User {
 
   @OneToMany(() => Report, (report_reported) => report_reported.user_reported)
   report_reported: Report;
+
+  @OneToMany(() => Rating, (rating_created) => rating_created.user_created)
+  rating_created: Rating;
+
+  @OneToMany(() => Rating, (rating_rated) => rating_rated.user_rated)
+  rating_rated: Rating;
 }
