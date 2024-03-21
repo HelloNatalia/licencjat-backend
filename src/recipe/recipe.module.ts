@@ -7,6 +7,8 @@ import { RecipeCategory } from './recipe-category.entity';
 import { RecipeProduct } from './recipe-product.entity';
 import { Product } from 'src/product/product.entity';
 import { FavouriteRecipe } from './favourite-recipe.entity';
+import { TemporaryRecipe } from './temporary-recipe.entity';
+import { TemporaryRecipeProduct } from './temporary-recipe-product.entity';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { FavouriteRecipe } from './favourite-recipe.entity';
     TypeOrmModule.forFeature([RecipeProduct]),
     TypeOrmModule.forFeature([Product]),
     TypeOrmModule.forFeature([FavouriteRecipe]),
+    TypeOrmModule.forFeature([TemporaryRecipe]),
+    TypeOrmModule.forFeature([TemporaryRecipeProduct]),
   ],
   controllers: [RecipeController],
   providers: [RecipeService],

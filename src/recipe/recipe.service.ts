@@ -15,6 +15,8 @@ import { FilterRecipesDto } from './dto/filterRecipesDto';
 import { AddToFavouriteDto } from './dto/addToFavouriteDto';
 import { User } from 'src/auth/user.entity';
 import { FavouriteRecipe } from './favourite-recipe.entity';
+import { TemporaryRecipe } from './temporary-recipe.entity';
+import { TemporaryRecipeProduct } from './temporary-recipe-product.entity';
 
 @Injectable()
 export class RecipeService {
@@ -33,6 +35,12 @@ export class RecipeService {
 
     @InjectRepository(FavouriteRecipe)
     private favouriteRecipeRepository: Repository<FavouriteRecipe>,
+
+    @InjectRepository(TemporaryRecipe)
+    private temporaryRecipeRepository: Repository<TemporaryRecipe>,
+
+    @InjectRepository(TemporaryRecipeProduct)
+    private temporaryRecipeProductRepository: Repository<TemporaryRecipeProduct>,
   ) {}
 
   async createRecipeCategory(
@@ -96,6 +104,63 @@ export class RecipeService {
       });
       try {
         await this.recipeProductRepository.save(recipeProduct);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    });
+  }
+
+  async createTemporaryRecipe(
+    createRecipeDto: CreateRecipeDto,
+    user: User,
+  ): Promise<void> {
+    const { title, text, photos, id_recipe_category, list_id_products } =
+      createRecipeDto;
+
+    const recipeCategory = await this.recipeCategoryRepository.findOneBy({
+      id_recipe_category,
+    });
+
+    if (!recipeCategory) {
+      throw new NotFoundException('Recipe category not found');
+    }
+
+    const listProducts: Product[] = [];
+    list_id_products.map(async (element: string) => {
+      const product = await this.productRepository.findOneBy({
+        id_product: element,
+      });
+      if (product) {
+        listProducts.push(product);
+      }
+    });
+
+    const temporaryRecipe = this.temporaryRecipeRepository.create({
+      user,
+      title,
+      text,
+      photos,
+      recipe_category: recipeCategory,
+    });
+
+    try {
+      await this.temporaryRecipeRepository.save(temporaryRecipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    listProducts.map(async (element) => {
+      const temporaryRecipeProduct =
+        this.temporaryRecipeProductRepository.create({
+          temporary_recipe: temporaryRecipe,
+          product: element,
+        });
+      try {
+        await this.temporaryRecipeProductRepository.save(
+          temporaryRecipeProduct,
+        );
       } catch (error) {
         console.log(error.message);
         throw new InternalServerErrorException('Something went wrong');

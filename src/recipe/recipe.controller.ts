@@ -34,9 +34,21 @@ export class RecipeController {
     return this.recipeService.createRecipeCategory(createRecipeCategoryDto);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
   @Post('create-recipe')
   createRecipe(@Body() createRecipeDto: CreateRecipeDto): Promise<void> {
     return this.recipeService.createRecipe(createRecipeDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Post('create-temporary-recipe')
+  createTemporaryRecipe(
+    @Body() createRecipeDto: CreateRecipeDto,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.recipeService.createTemporaryRecipe(createRecipeDto, user);
   }
 
   @Get('all')
@@ -82,6 +94,8 @@ export class RecipeController {
     return this.recipeService.addFavouriteRecipe(user, addToFavouriteDto);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
   @Get('is-favourite/:id')
   checkIfFavourite(
     @GetUser() user: User,

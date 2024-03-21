@@ -1,6 +1,7 @@
 import { Announcement } from 'src/announcement/announcement.entity';
 import { ProductCategory } from 'src/product_category/product_category.entity';
 import { RecipeProduct } from 'src/recipe/recipe-product.entity';
+import { TemporaryRecipeProduct } from 'src/recipe/temporary-recipe-product.entity';
 import {
   Column,
   Entity,
@@ -31,4 +32,10 @@ export class Product {
 
   @OneToMany(() => RecipeProduct, (recipe_product) => recipe_product.product)
   recipe_product: RecipeProduct;
+
+  @OneToMany(
+    () => TemporaryRecipeProduct,
+    (temporary_recipe_product) => temporary_recipe_product.product,
+  )
+  temporary_recipe_product: TemporaryRecipeProduct;
 }
