@@ -89,7 +89,9 @@ export class AnnouncementService {
     const query =
       this.announcementsRepository.createQueryBuilder('announcement');
 
-    query.leftJoinAndSelect('announcement.user', 'user');
+    query
+      .leftJoinAndSelect('announcement.user', 'user')
+      .where('announcement.status = :status', { status: 'available' });
 
     if (search) {
       query.andWhere(

@@ -6,6 +6,7 @@ import { FavouriteRecipe } from 'src/recipe/favourite-recipe.entity';
 import { TemporaryRecipe } from 'src/recipe/temporary-recipe.entity';
 import { Report } from 'src/report/report.entity';
 import { Rating } from 'src/rating/rating.entity';
+import { TakenProduct } from 'src/announcement/taken-product.entity';
 
 @Entity()
 export class User {
@@ -61,4 +62,17 @@ export class User {
 
   @OneToMany(() => Rating, (rating_rated) => rating_rated.user_rated)
   rating_rated: Rating;
+
+  @OneToMany(
+    () => TakenProduct,
+    (taken_product_request) => taken_product_request.user_request,
+  )
+  taken_product_request: TakenProduct;
+
+  @OneToMany(
+    () => TakenProduct,
+    (taken_product_announcement) =>
+      taken_product_announcement.user_announcement,
+  )
+  taken_product_announcement: TakenProduct;
 }

@@ -12,6 +12,7 @@ import { Announcement } from 'src/announcement/announcement.entity';
 import { ChangeRequestStatusDto } from './dto/changeRequestStatusDto';
 import { Status } from './status.enum';
 import { DeleteRequestDto } from './dto/deleteRequestDto';
+import { StatusAnnouncement } from 'src/announcement/status-announcement.enum';
 
 @Injectable()
 export class RequestService {
@@ -94,7 +95,7 @@ export class RequestService {
         where: {
           id_request: id,
         },
-        relations: ['id_user_announcement'],
+        relations: ['id_user_announcement', 'announcement'],
       });
 
       if (requestObj === null) {
@@ -118,6 +119,14 @@ export class RequestService {
         break;
       case 'received':
         requestObj.status = Status.Received;
+        const announcementObj = requestObj.announcement;
+        announcementObj.status = StatusAnnouncement.Received;
+        try {
+          this.announcementsRepository.save(announcementObj);
+        } catch (error) {
+          console.log(error.message);
+          throw new InternalServerErrorException('Something went wrong');
+        }
         break;
       default:
         throw new NotFoundException('Status type not found');
