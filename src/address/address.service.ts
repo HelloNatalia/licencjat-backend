@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Address } from './address.entity';
 import { Repository } from 'typeorm';
@@ -35,5 +39,15 @@ export class AddressService {
       console.log(error.message);
       throw new InternalServerErrorException('Something went wrong');
     }
+  }
+
+  async getUserAddress(user: User): Promise<Address> {
+    const address = await this.addressesRepository.findOneBy({ user });
+
+    if (!address) {
+      throw new NotFoundException("Selected user's address not found");
+    }
+
+    return address;
   }
 }

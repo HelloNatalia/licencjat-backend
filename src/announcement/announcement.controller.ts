@@ -51,6 +51,14 @@ export class AnnouncementController {
     return this.announcementService.getMyAnnouncements(user);
   }
 
+  @Get('get-products-nearby')
+  getProductsNearby(
+    @Query('id') id: string,
+    @Query('city') city: string,
+  ): Promise<number> {
+    return this.announcementService.getProductsNearby(id, city);
+  }
+
   @Get(':id')
   getAnnouncement(@Param('id') id: string): Promise<Announcement> {
     return this.announcementService.getAnnouncement(id);
