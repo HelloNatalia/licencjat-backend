@@ -96,6 +96,11 @@ export class AnnouncementService {
       .leftJoinAndSelect('announcement.user', 'user')
       .where('announcement.status = :status', { status: 'available' });
 
+    query.leftJoinAndSelect(
+      'announcement.product_category',
+      'product_category',
+    );
+
     if (search) {
       query.andWhere(
         '(LOWER(announcement.title) LIKE LOWER(:search) OR LOWER(announcement.description) LIKE LOWER(:search))',
