@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/createAddressDto';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -7,6 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/role.enum';
+import { Address } from './address.entity';
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(Role.Client)
@@ -20,5 +21,12 @@ export class AddressController {
     @GetUser() user: User,
   ): Promise<void> {
     return this.addressService.createAddress(createAddressDto, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('get-user-address')
+  getUserCity(@GetUser() user: User): Promise<Address> {
+    return this.addressService.getUserAddress(user);
   }
 }
