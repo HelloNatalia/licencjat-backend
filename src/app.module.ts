@@ -9,6 +9,8 @@ import { ProductCategoryModule } from './product_category/product_category.modul
 import { AnnouncementModule } from './announcement/announcement.module';
 import { RequestModule } from './request/request.module';
 import { RecipeModule } from './recipe/recipe.module';
+import { ReportModule } from './report/report.module';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { RecipeModule } from './recipe/recipe.module';
     AnnouncementModule,
     RequestModule,
     RecipeModule,
+    ReportModule,
+    RatingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

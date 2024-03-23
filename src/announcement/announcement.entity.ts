@@ -2,6 +2,7 @@ import { User } from 'src/auth/user.entity';
 import { Product } from 'src/product/product.entity';
 import { ProductCategory } from 'src/product_category/product_category.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { StatusAnnouncement } from './status-announcement.enum';
 
 @Entity()
 export class Announcement {
@@ -49,4 +50,11 @@ export class Announcement {
 
   @Column()
   date: Date;
+
+  @Column({
+    type: 'enum',
+    enum: StatusAnnouncement,
+    default: StatusAnnouncement.Available,
+  })
+  status: StatusAnnouncement;
 }
