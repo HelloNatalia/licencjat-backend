@@ -5,13 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Announcement } from './announcement.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Product } from 'src/product/product.entity';
 import { ProductCategory } from 'src/product_category/product_category.entity';
 import { CreateAnnouncementDto } from './dto/createAnnouncementDto';
 import { User } from 'src/auth/user.entity';
 import { GetAnnouncementsFilterDto } from './dto/getAnnouncementsFilterDto';
 import { Request } from 'src/request/request.entity';
+import { StatusAnnouncement } from './status-announcement.enum';
 
 @Injectable()
 export class AnnouncementService {
@@ -24,6 +25,8 @@ export class AnnouncementService {
     private productCategoryRepository: Repository<ProductCategory>,
     @InjectRepository(Request)
     private requestRepository: Repository<Request>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   async createAnnouncement(
@@ -225,5 +228,22 @@ export class AnnouncementService {
       console.log(error.message);
       throw new InternalServerErrorException('Something went wrong');
     }
+  }
+
+  async getProductsNearby(id: string, city: string): Promise<number> {
+    const product = await this.productRepository.findOneBy({ id_product: id });
+
+    if (!product) {
+      throw new NotFoundException('Selected product not found.');
+    }
+
+    const announcements = await this.announcementsRepository.findBy({
+      city,
+      product,
+      status: StatusAnnouncement.Available,
+    });
+
+    if (!announcements || announcements.length === 0) return 0;
+    return announcements.length;
   }
 }
