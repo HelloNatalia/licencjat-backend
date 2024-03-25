@@ -59,6 +59,15 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('is-admin')
+  isAdmin(@GetUser() user: User): void {
+    if (!user || !user.roles.includes(Role.Admin)) {
+      throw new UnauthorizedException();
+    } else return;
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Client)
   @Delete('delete-account')
   deleteAccount(@GetUser() user: User): Promise<void> {

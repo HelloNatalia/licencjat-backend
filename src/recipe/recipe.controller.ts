@@ -53,9 +53,32 @@ export class RecipeController {
     return this.recipeService.createTemporaryRecipe(createRecipeDto, user);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('all-admin-panel')
+  getAllRecipesAdminPage(): Promise<Recipe[]> {
+    return this.recipeService.getAllRecipesAdminPage();
+  }
+
   @Get('all')
   getAllRecipes(): Promise<RecipeProduct[]> {
     return this.recipeService.getAllRecipes();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('all-temporary')
+  getAllTemporaryRecipes(): Promise<TemporaryRecipe[]> {
+    return this.recipeService.getAllTemporaryRecipes();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('temporary/:id')
+  getTemporaryRecipe(
+    @Param('id') id: string,
+  ): Promise<TemporaryRecipeProduct[]> {
+    return this.recipeService.getTemporaryRecipe(id);
   }
 
   @Post()
@@ -121,5 +144,26 @@ export class RecipeController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.recipeService.deleteFavourite(user, id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('accept-recipe/:id')
+  acceptTemporaryRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.acceptTemporaryRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Delete('delete-temporary-recipe/:id')
+  deleteTemporaryRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.deleteTemporaryRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Delete('delete-recipe/:id')
+  deleteRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.deleteRecipe(id);
   }
 }

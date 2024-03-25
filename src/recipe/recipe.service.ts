@@ -176,6 +176,11 @@ export class RecipeService {
     return recipes;
   }
 
+  async getAllRecipesAdminPage(): Promise<Recipe[]> {
+    const recipes = this.recipeRepository.find();
+    return recipes;
+  }
+
   async getRecipes(filterRecipesDto: FilterRecipesDto): Promise<any[]> {
     const { products_list, id_recipe_category } = filterRecipesDto;
 
@@ -373,5 +378,135 @@ export class RecipeService {
     });
 
     return recipes;
+  }
+
+  async getAllTemporaryRecipes(): Promise<TemporaryRecipe[]> {
+    const recipes = this.temporaryRecipeRepository.find();
+    return recipes;
+  }
+
+  async getTemporaryRecipe(id: string): Promise<TemporaryRecipeProduct[]> {
+    const recipe = await this.temporaryRecipeRepository.findOneBy({
+      id_temporary_recipe: id,
+    });
+
+    if (!recipe) {
+      throw new NotFoundException('Selected temporary recipe not found');
+    }
+
+    const recipeProducts = await this.temporaryRecipeProductRepository.find({
+      where: { temporary_recipe: recipe },
+      relations: ['temporary_recipe', 'product'],
+    });
+
+    return recipeProducts;
+  }
+
+  async acceptTemporaryRecipe(id: string): Promise<void> {
+    const temporaryRecipe = await this.temporaryRecipeRepository.findOne({
+      where: { id_temporary_recipe: id },
+      relations: ['recipe_category'],
+    });
+
+    if (!temporaryRecipe) {
+      throw new NotFoundException('Selected temporary recipe not found');
+    }
+
+    const temporaryRecipeProducts =
+      await this.temporaryRecipeProductRepository.find({
+        where: { temporary_recipe: temporaryRecipe },
+        relations: ['temporary_recipe', 'product'],
+      });
+
+    const recipe = this.recipeRepository.create({
+      title: temporaryRecipe.title,
+      text: temporaryRecipe.text,
+      photos: temporaryRecipe.photos,
+      recipe_category: temporaryRecipe.recipe_category,
+    });
+    try {
+      await this.recipeRepository.save(recipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    temporaryRecipeProducts.map(async (element) => {
+      const recipeProduct = this.recipeProductRepository.create({
+        recipe,
+        product: element.product,
+      });
+      try {
+        await this.recipeProductRepository.save(recipeProduct);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    });
+
+    this.deleteTemporaryRecipe(id);
+  }
+
+  async deleteTemporaryRecipe(id: string): Promise<void> {
+    const temporaryRecipe = await this.temporaryRecipeRepository.findOneBy({
+      id_temporary_recipe: id,
+    });
+
+    if (!temporaryRecipe) {
+      throw new NotFoundException('Selected temporary recipe not found');
+    }
+
+    const temporaryRecipeProduct =
+      await this.temporaryRecipeProductRepository.find({
+        where: { temporary_recipe: temporaryRecipe },
+      });
+
+    Promise.all(
+      temporaryRecipeProduct.map(async (element) => {
+        try {
+          await this.temporaryRecipeProductRepository.remove(element);
+        } catch (error) {
+          console.log(error.message);
+          throw new InternalServerErrorException('Something went wrong');
+        }
+      }),
+    );
+
+    try {
+      await this.temporaryRecipeRepository.remove(temporaryRecipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  async deleteRecipe(id: string): Promise<void> {
+    const recipe = await this.recipeRepository.findOneBy({
+      id_recipe: id,
+    });
+
+    if (!recipe) {
+      throw new NotFoundException('Selected temporary recipe not found');
+    }
+
+    const recipeProduct = await this.recipeProductRepository.find({
+      where: { recipe },
+    });
+
+    recipeProduct.map(async (element) => {
+      try {
+        await this.recipeProductRepository.remove(element);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException('Something went wrong');
+      }
+    });
+
+    try {
+      await this.recipeRepository.remove(recipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 }
