@@ -13,4 +13,8 @@ export class GetAnnouncementsFilterDto {
   @IsOptional()
   @IsUUID()
   product_category_id: string;
+
+  @IsOptional()
+  @IsString()
+  city_name: string;
 }

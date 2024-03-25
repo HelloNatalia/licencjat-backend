@@ -86,7 +86,7 @@ export class AnnouncementService {
   async getAnnouncements(
     getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
   ): Promise<Announcement[]> {
-    const { search, product_id, product_category_id } =
+    const { search, product_id, product_category_id, city_name } =
       getAnnouncementsFilterDto;
 
     const query =
@@ -119,6 +119,11 @@ export class AnnouncementService {
           product_category_id,
         },
       );
+    }
+    if (city_name) {
+      query.andWhere('(announcement.city = :city_name)', {
+        city_name,
+      });
     }
 
     try {
