@@ -17,6 +17,7 @@ import { User } from 'src/auth/user.entity';
 import { FavouriteRecipe } from './favourite-recipe.entity';
 import { TemporaryRecipe } from './temporary-recipe.entity';
 import { TemporaryRecipeProduct } from './temporary-recipe-product.entity';
+import { RecipeStatus } from './recipe-status.enum';
 
 @Injectable()
 export class RecipeService {
@@ -381,7 +382,10 @@ export class RecipeService {
   }
 
   async getAllTemporaryRecipes(): Promise<TemporaryRecipe[]> {
-    const recipes = this.temporaryRecipeRepository.find();
+    const recipes = await this.temporaryRecipeRepository.find({
+      where: { status: RecipeStatus.Created },
+    });
+    console.log(recipes);
     return recipes;
   }
 
@@ -444,7 +448,13 @@ export class RecipeService {
       }
     });
 
-    this.deleteTemporaryRecipe(id);
+    temporaryRecipe.status = RecipeStatus.Accepted;
+    try {
+      await this.temporaryRecipeRepository.save(temporaryRecipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 
   async deleteTemporaryRecipe(id: string): Promise<void> {

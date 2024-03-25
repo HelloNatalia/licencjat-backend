@@ -73,7 +73,7 @@ export class RecipeController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Client)
   @Get('temporary/:id')
   getTemporaryRecipe(
     @Param('id') id: string,
