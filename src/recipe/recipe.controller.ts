@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
@@ -61,8 +62,10 @@ export class RecipeController {
   }
 
   @Get('all')
-  getAllRecipes(): Promise<RecipeProduct[]> {
-    return this.recipeService.getAllRecipes();
+  getAllRecipes(
+    @Query('id_recipe_category') id_recipe_category: string,
+  ): Promise<RecipeProduct[]> {
+    return this.recipeService.getAllRecipes(id_recipe_category);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

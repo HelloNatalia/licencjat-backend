@@ -169,7 +169,20 @@ export class RecipeService {
     });
   }
 
-  async getAllRecipes(): Promise<RecipeProduct[]> {
+  async getAllRecipes(id_recipe_category: string): Promise<RecipeProduct[]> {
+    if (id_recipe_category) {
+      const recipeCategory = await this.recipeCategoryRepository.findOneBy({
+        id_recipe_category,
+      });
+      if (!recipeCategory) {
+        throw new NotFoundException('Selected category not found');
+      }
+      const recipes = await this.recipeProductRepository.find({
+        where: { recipe: { recipe_category: recipeCategory } },
+        relations: ['recipe', 'product'],
+      });
+      return recipes;
+    }
     const recipes = this.recipeProductRepository.find({
       where: {},
       relations: ['recipe', 'product'],
