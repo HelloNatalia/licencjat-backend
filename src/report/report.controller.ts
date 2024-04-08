@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -7,6 +7,7 @@ import { Role } from 'src/auth/role.enum';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { CreateReportDto } from './dto/createReportDto';
+import { Report } from './report.entity';
 
 @Controller('report')
 export class ReportController {
@@ -20,5 +21,12 @@ export class ReportController {
     @Body() createReportDto: CreateReportDto,
   ): Promise<void> {
     return this.reportService.createReport(user, createReportDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('reports')
+  geteReports(): Promise<Report[]> {
+    return this.reportService.getReports();
   }
 }

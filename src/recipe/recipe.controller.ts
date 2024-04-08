@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -168,5 +169,15 @@ export class RecipeController {
   @Delete('delete-recipe/:id')
   deleteRecipe(@Param('id') id: string): Promise<void> {
     return this.recipeService.deleteRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Patch('edit-recipe/:id')
+  editRecipe(
+    @Param('id') id: string,
+    @Body() createRecipeDto: CreateRecipeDto,
+  ): Promise<void> {
+    return this.recipeService.editRecipe(id, createRecipeDto);
   }
 }

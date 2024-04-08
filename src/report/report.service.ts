@@ -45,4 +45,10 @@ export class ReportService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async getReports(): Promise<Report[]> {
+    const reports = await this.ReportsRepository.find();
+
+    return reports;
+  }
 }

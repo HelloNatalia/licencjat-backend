@@ -532,4 +532,76 @@ export class RecipeService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async editRecipe(
+    id: string,
+    createRecipeDto: CreateRecipeDto,
+  ): Promise<void> {
+    console.log(createRecipeDto.id_recipe_category);
+    const { title, text, photos, id_recipe_category, list_id_products } =
+      createRecipeDto;
+
+    const recipe = await this.recipeRepository.findOneBy({ id_recipe: id });
+
+    if (!recipe) {
+      throw new NotFoundException('Selected recipe not found');
+    }
+
+    const recipeCategory = await this.recipeCategoryRepository.findOneBy({
+      id_recipe_category,
+    });
+
+    if (!recipeCategory) {
+      throw new NotFoundException('Recipe category not found');
+    }
+
+    const listProducts: Product[] = [];
+    await Promise.all(
+      list_id_products.map(async (element: string) => {
+        const product = await this.productRepository.findOneBy({
+          id_product: element,
+        });
+        if (product) {
+          listProducts.push(product);
+        }
+      }),
+    );
+
+    recipe.title = title;
+    recipe.text = text;
+    recipe.photos = photos;
+    recipe.recipe_category = recipeCategory;
+
+    try {
+      await this.recipeRepository.save(recipe);
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    // Usunąć wszystkie rekordy recipe_product
+    const currentRecipeProducts = await this.recipeProductRepository.find({
+      where: { recipe: recipe },
+    });
+    await Promise.all(
+      currentRecipeProducts.map(async (element) => {
+        await this.recipeProductRepository.remove(element);
+      }),
+    );
+
+    await Promise.all(
+      listProducts.map(async (element) => {
+        const recipeProduct = this.recipeProductRepository.create({
+          recipe,
+          product: element,
+        });
+        try {
+          await this.recipeProductRepository.save(recipeProduct);
+        } catch (error) {
+          console.log(error.message);
+          throw new InternalServerErrorException('Something went wrong');
+        }
+      }),
+    );
+  }
 }
