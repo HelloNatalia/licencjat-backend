@@ -11,6 +11,7 @@ import { RequestModule } from './request/request.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { ReportModule } from './report/report.module';
 import { RatingModule } from './rating/rating.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RatingModule } from './rating/rating.module';
     RecipeModule,
     ReportModule,
     RatingModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
