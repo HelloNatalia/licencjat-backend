@@ -86,4 +86,14 @@ export class AnnouncementController {
       createAnnouncementDto,
     );
   }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('check-if-your-announcement/:id')
+  checkIfYourAnnouncement(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<boolean> {
+    return this.announcementService.checkIfYourAnnouncement(id, user);
+  }
 }

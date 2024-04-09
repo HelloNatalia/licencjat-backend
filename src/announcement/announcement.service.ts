@@ -256,4 +256,15 @@ export class AnnouncementService {
     if (!announcements || announcements.length === 0) return 0;
     return announcements.length;
   }
+
+  async checkIfYourAnnouncement(id: string, user: User): Promise<boolean> {
+    const announcement = await this.announcementsRepository.findOne({
+      where: { id_announcement: id },
+      relations: ['user'],
+    });
+
+    if (!announcement || !user) return false;
+    if (announcement.user.id === user.id) return true;
+    else return false;
+  }
 }
