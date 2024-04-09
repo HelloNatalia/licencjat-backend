@@ -13,7 +13,7 @@ import { diskStorage } from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
 
-const UPLOADS_DIR = path.resolve(__dirname, '..', 'uploads');
+// const UPLOADS_DIR = path.resolve(__dirname, '..', 'uploads');
 
 @Controller('file')
 export class FileController {
@@ -21,7 +21,7 @@ export class FileController {
   @UseInterceptors(
     FilesInterceptor('photos', 10, {
       storage: diskStorage({
-        destination: UPLOADS_DIR,
+        destination: './dist/uploads',
         filename: (req, file, cb) => {
           cb(null, file.originalname);
         },
