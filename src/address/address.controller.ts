@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/createAddressDto';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -25,8 +33,25 @@ export class AddressController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Client)
+  @Get('get-user-addresses')
+  getUserAddresses(@GetUser() user: User): Promise<Address[]> {
+    return this.addressService.getUserAddresses(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
   @Get('get-user-address')
   getUserCity(@GetUser() user: User): Promise<Address> {
     return this.addressService.getUserAddress(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Delete('delete-user-address/:id')
+  DeleteUserAddress(
+    @GetUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.addressService.deleteUserAddress(user, id);
   }
 }

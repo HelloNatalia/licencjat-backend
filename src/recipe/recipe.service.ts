@@ -511,21 +511,16 @@ export class RecipeService {
     if (!recipe) {
       throw new NotFoundException('Selected temporary recipe not found');
     }
-
-    const recipeProduct = await this.recipeProductRepository.find({
-      where: { recipe },
-    });
-
-    recipeProduct.map(async (element) => {
-      try {
-        await this.recipeProductRepository.remove(element);
-      } catch (error) {
-        console.log(error.message);
-        throw new InternalServerErrorException('Something went wrong');
-      }
-    });
-
     try {
+      await this.recipeProductRepository.delete({ recipe });
+
+      const favourites = await this.favouriteRecipeRepository.findBy({
+        recipe,
+      });
+      for (const favourite of favourites) {
+        await this.favouriteRecipeRepository.remove(favourite);
+      }
+
       await this.recipeRepository.remove(recipe);
     } catch (error) {
       console.log(error.message);

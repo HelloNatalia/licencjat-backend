@@ -8,6 +8,7 @@ import { Address } from './address.entity';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/createAddressDto';
 import { User } from 'src/auth/user.entity';
+import { error } from 'console';
 
 @Injectable()
 export class AddressService {
@@ -41,13 +42,30 @@ export class AddressService {
     }
   }
 
+  async getUserAddresses(user: User): Promise<Address[]> {
+    const address = await this.addressesRepository.findBy({ user });
+
+    if (!address) {
+      throw new NotFoundException("Selected user's address not found");
+    }
+    return address;
+  }
+
   async getUserAddress(user: User): Promise<Address> {
     const address = await this.addressesRepository.findOneBy({ user });
 
     if (!address) {
       throw new NotFoundException("Selected user's address not found");
     }
-
     return address;
+  }
+
+  async deleteUserAddress(user: User, id: string): Promise<void> {
+    try {
+      await this.addressesRepository.delete({ id_address: id, user });
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 }
