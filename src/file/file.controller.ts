@@ -21,7 +21,7 @@ export class FileController {
   @UseInterceptors(
     FilesInterceptor('photos', 10, {
       storage: diskStorage({
-        destination: './dist/uploads',
+        destination: './src/assets',
         filename: (req, file, cb) => {
           cb(null, file.originalname);
         },
@@ -35,11 +35,11 @@ export class FileController {
   @Get(':fileName')
   async getPhoto(@Param('fileName') fileName: string, @Req() req: any) {
     const baseUrl = req.protocol + '://' + req.get('host'); // pobierz bazowy URL z żądania
-    const fileUrl = baseUrl + '/uploads/' + fileName; // zbuduj pełny URL pliku
+    const fileUrl = baseUrl + '/assets/' + fileName; // zbuduj pełny URL pliku
 
-    const filePath = path.join(__dirname, '..', 'uploads', fileName);
+    const filePath = path.join(__dirname, '..', 'assets', fileName);
     const fileExists = fs.existsSync(filePath);
-
+    console.log(filePath);
     if (!fileExists) {
       throw new NotFoundException('File not found');
     }

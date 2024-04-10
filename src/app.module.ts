@@ -12,6 +12,8 @@ import { RecipeModule } from './recipe/recipe.module';
 import { ReportModule } from './report/report.module';
 import { RatingModule } from './rating/rating.module';
 import { FileModule } from './file/file.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -24,6 +26,9 @@ import { FileModule } from './file/file.module';
       database: 'licencjat-database',
       autoLoadEntities: true,
       synchronize: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'assets'),
     }),
     AuthModule,
     AddressModule,
