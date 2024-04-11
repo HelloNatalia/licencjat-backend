@@ -116,8 +116,14 @@ export class RecipeService {
     createRecipeDto: CreateRecipeDto,
     user: User,
   ): Promise<void> {
-    const { title, text, photos, id_recipe_category, list_id_products } =
-      createRecipeDto;
+    const {
+      title,
+      text,
+      photos,
+      id_recipe_category,
+      list_id_products,
+      list_amount,
+    } = createRecipeDto;
 
     const recipeCategory = await this.recipeCategoryRepository.findOneBy({
       id_recipe_category,
@@ -153,10 +159,18 @@ export class RecipeService {
     }
 
     listProducts.map(async (element) => {
+      let product_amount = '';
+      const foundAmount = list_amount.find(
+        (amount) => amount.id === element.id_product,
+      );
+      if (foundAmount) {
+        product_amount = foundAmount.amount;
+      }
       const temporaryRecipeProduct =
         this.temporaryRecipeProductRepository.create({
           temporary_recipe: temporaryRecipe,
           product: element,
+          amount: product_amount,
         });
       try {
         await this.temporaryRecipeProductRepository.save(
@@ -452,6 +466,7 @@ export class RecipeService {
       const recipeProduct = this.recipeProductRepository.create({
         recipe,
         product: element.product,
+        amount: element.amount,
       });
       try {
         await this.recipeProductRepository.save(recipeProduct);
