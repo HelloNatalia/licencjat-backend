@@ -27,9 +27,9 @@ import { join } from 'path';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'assets'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'assets'),
+    // }),
     AuthModule,
     AddressModule,
     ProductModule,

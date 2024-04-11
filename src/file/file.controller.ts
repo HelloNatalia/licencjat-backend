@@ -29,6 +29,11 @@ export class FileController {
     }),
   )
   async uploadPhotos(@UploadedFiles() photos: Express.Multer.File[]) {
+    const secondDestination = './dist/assets'; // Lokalizacja docelowa
+
+    photos.forEach((photo) => {
+      fs.copyFileSync(photo.path, `${secondDestination}/${photo.filename}`);
+    });
     return { photos };
   }
 
@@ -39,7 +44,6 @@ export class FileController {
 
     const filePath = path.join(__dirname, '..', 'assets', fileName);
     const fileExists = fs.existsSync(filePath);
-    console.log(filePath);
     if (!fileExists) {
       throw new NotFoundException('File not found');
     }

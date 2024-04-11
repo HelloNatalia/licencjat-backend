@@ -7,11 +7,11 @@ import { join } from 'path';
 @Module({
   imports: [
     MulterModule.register({
-      dest: './uploads',
+      dest: './assets',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
+      rootPath: join(__dirname, '..', 'assets'),
+      serveRoot: '/assets',
     }),
   ],
   controllers: [FileController],
