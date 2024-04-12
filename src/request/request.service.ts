@@ -182,4 +182,25 @@ export class RequestService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async deleteAllUsersRequests(user: User): Promise<string> {
+    const requestsRequested = await this.requestsRepository.findBy({
+      id_user_request: user,
+    });
+    const requestsAnnouncement = await this.requestsRepository.findBy({
+      id_user_announcement: user,
+    });
+    try {
+      for (const requestRequested of requestsRequested) {
+        await this.requestsRepository.remove(requestRequested);
+      }
+      for (const requestAnnouncement of requestsAnnouncement) {
+        await this.requestsRepository.remove(requestAnnouncement);
+      }
+      return 'success';
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException();
+    }
+  }
 }

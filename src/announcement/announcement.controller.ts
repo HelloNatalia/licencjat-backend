@@ -37,6 +37,11 @@ export class AnnouncementController {
     );
   }
 
+  @Get('single-announcement/:id')
+  getSingleAnnouncement(@Param('id') id: string): Promise<Announcement> {
+    return this.announcementService.getAnnouncement(id);
+  }
+
   @Get()
   getAnnouncements(
     @Query() getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
@@ -57,11 +62,6 @@ export class AnnouncementController {
     @Query('city') city: string,
   ): Promise<number> {
     return this.announcementService.getProductsNearby(id, city);
-  }
-
-  @Get('single-announcement/:id')
-  getSingleAnnouncement(@Param('id') id: string): Promise<Announcement> {
-    return this.announcementService.getAnnouncement(id);
   }
 
   @Get(':id')

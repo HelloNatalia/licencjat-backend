@@ -629,4 +629,36 @@ export class RecipeService {
       }),
     );
   }
+
+  async deleteAllUsersFavouriteRecipes(user: User): Promise<void> {
+    const recipes = await this.favouriteRecipeRepository.findBy({ user });
+
+    for (const recipe of recipes) {
+      try {
+        await this.favouriteRecipeRepository.remove(recipe);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
+  async deleteAllUsersTemporaryRecipes(user: User): Promise<void> {
+    const recipes = await this.temporaryRecipeRepository.findBy({ user });
+
+    for (const recipe of recipes) {
+      try {
+        const products = await this.temporaryRecipeProductRepository.findBy({
+          temporary_recipe: recipe,
+        });
+        for (const product of products) {
+          await this.temporaryRecipeProductRepository.remove(product);
+        }
+        await this.temporaryRecipeRepository.remove(recipe);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
 }

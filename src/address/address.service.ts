@@ -68,4 +68,17 @@ export class AddressService {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
+
+  async deleteAllUsersAddresses(user: User): Promise<void> {
+    const addresses = await this.addressesRepository.findBy({ user });
+
+    for (const address of addresses) {
+      try {
+        await this.addressesRepository.remove(address);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
 }

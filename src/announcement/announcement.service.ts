@@ -274,4 +274,16 @@ export class AnnouncementService {
     if (announcement.user.id === user.id) return true;
     else return false;
   }
+
+  async deleteAllUsersAnnouncements(user: User): Promise<void> {
+    const announcements = await this.announcementsRepository.findBy({ user });
+    for (const announcement of announcements) {
+      try {
+        await this.announcementsRepository.remove(announcement);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
 }
