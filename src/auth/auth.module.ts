@@ -39,7 +39,7 @@ import { RequestService } from 'src/request/request.service';
     JwtModule.register({
       secret: 'secret',
       signOptions: {
-        expiresIn: 3600,
+        expiresIn: 10800,
       },
     }),
     TypeOrmModule.forFeature([User]),

@@ -563,7 +563,7 @@ export class RecipeService {
     createRecipeDto: CreateRecipeDto,
   ): Promise<void> {
     console.log(createRecipeDto.id_recipe_category);
-    const { title, text, photos, id_recipe_category, list_id_products } =
+    const { title, text, id_recipe_category, list_id_products, list_amount } =
       createRecipeDto;
 
     const recipe = await this.recipeRepository.findOneBy({ id_recipe: id });
@@ -572,9 +572,14 @@ export class RecipeService {
       throw new NotFoundException('Selected recipe not found');
     }
 
-    const recipeCategory = await this.recipeCategoryRepository.findOneBy({
-      id_recipe_category,
-    });
+    let recipeCategory;
+    if (id_recipe_category) {
+      recipeCategory = await this.recipeCategoryRepository.findOneBy({
+        id_recipe_category,
+      });
+    } else {
+      recipeCategory = recipe.recipe_category;
+    }
 
     if (!recipeCategory) {
       throw new NotFoundException('Recipe category not found');
@@ -594,9 +599,8 @@ export class RecipeService {
 
     recipe.title = title;
     recipe.text = text;
-    recipe.photos = photos;
     recipe.recipe_category = recipeCategory;
-
+    console.log(recipe.photos);
     try {
       await this.recipeRepository.save(recipe);
     } catch (error) {
@@ -614,11 +618,32 @@ export class RecipeService {
       }),
     );
 
+    // let product_amount = '';
+    //   const foundAmount = list_amount.find(
+    //     (amount) => amount.id === element.id_product,
+    //   );
+    //   if (foundAmount) {
+    //     product_amount = foundAmount.amount;
+    //   }
+    //   const temporaryRecipeProduct =
+    //     this.temporaryRecipeProductRepository.create({
+    //       temporary_recipe: temporaryRecipe,
+    //       product: element,
+    //       amount: product_amount,
+    //     });
     await Promise.all(
       listProducts.map(async (element) => {
+        let product_amount = '';
+        const foundAmount = list_amount.find(
+          (amount) => amount.id === element.id_product,
+        );
+        if (foundAmount) {
+          product_amount = foundAmount.amount;
+        }
         const recipeProduct = this.recipeProductRepository.create({
           recipe,
           product: element,
+          amount: product_amount,
         });
         try {
           await this.recipeProductRepository.save(recipeProduct);

@@ -48,7 +48,9 @@ export class ReportService {
   }
 
   async getReports(): Promise<Report[]> {
-    const reports = await this.ReportsRepository.find();
+    const reports = await this.ReportsRepository.find({
+      relations: ['user_created', 'user_reported'],
+    });
 
     return reports;
   }
