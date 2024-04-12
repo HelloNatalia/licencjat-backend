@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ReportService } from './report.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -28,5 +37,19 @@ export class ReportController {
   @Get('reports')
   geteReports(): Promise<Report[]> {
     return this.reportService.getReports();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Patch('accept/:id')
+  acceptReport(@Param('id') id: string): Promise<void> {
+    return this.reportService.acceptReport(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Delete('delete/:id')
+  deleteReport(@Param('id') id: string): Promise<void> {
+    return this.reportService.deleteReport(id);
   }
 }

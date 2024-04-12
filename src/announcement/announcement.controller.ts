@@ -59,6 +59,11 @@ export class AnnouncementController {
     return this.announcementService.getProductsNearby(id, city);
   }
 
+  @Get('single-announcement/:id')
+  getSingleAnnouncement(@Param('id') id: string): Promise<Announcement> {
+    return this.announcementService.getAnnouncement(id);
+  }
+
   @Get(':id')
   getAnnouncement(@Param('id') id: string): Promise<Announcement> {
     return this.announcementService.getAnnouncement(id);

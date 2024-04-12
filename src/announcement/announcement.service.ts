@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,6 +14,7 @@ import { User } from 'src/auth/user.entity';
 import { GetAnnouncementsFilterDto } from './dto/getAnnouncementsFilterDto';
 import { Request } from 'src/request/request.entity';
 import { StatusAnnouncement } from './status-announcement.enum';
+import { ReportService } from 'src/report/report.service';
 
 @Injectable()
 export class AnnouncementService {
@@ -27,6 +29,7 @@ export class AnnouncementService {
     private requestRepository: Repository<Request>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private reportsService: ReportService,
   ) {}
 
   async createAnnouncement(
@@ -47,6 +50,10 @@ export class AnnouncementService {
       photos,
       date,
     } = createAnnouncementDto;
+
+    if (await this.reportsService.checkIfUserHasAcceptedReport(user)) {
+      throw new ForbiddenException();
+    }
 
     const productObj = await this.productRepository.findOneBy({
       id_product: product,

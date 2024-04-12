@@ -22,5 +22,5 @@ export class Report {
     array: false,
     default: [ReportStatus.Created],
   })
-  roles: ReportStatus;
+  status: ReportStatus;
 }
