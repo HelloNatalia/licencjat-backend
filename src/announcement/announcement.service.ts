@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,6 +14,7 @@ import { User } from 'src/auth/user.entity';
 import { GetAnnouncementsFilterDto } from './dto/getAnnouncementsFilterDto';
 import { Request } from 'src/request/request.entity';
 import { StatusAnnouncement } from './status-announcement.enum';
+import { ReportService } from 'src/report/report.service';
 
 @Injectable()
 export class AnnouncementService {
@@ -27,6 +29,7 @@ export class AnnouncementService {
     private requestRepository: Repository<Request>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private reportsService: ReportService,
   ) {}
 
   async createAnnouncement(
@@ -47,6 +50,10 @@ export class AnnouncementService {
       photos,
       date,
     } = createAnnouncementDto;
+
+    if (await this.reportsService.checkIfUserHasAcceptedReport(user)) {
+      throw new ForbiddenException();
+    }
 
     const productObj = await this.productRepository.findOneBy({
       id_product: product,
@@ -86,7 +93,7 @@ export class AnnouncementService {
   async getAnnouncements(
     getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
   ): Promise<Announcement[]> {
-    const { search, product_id, product_category_id } =
+    const { search, product_id, product_category_id, city_name } =
       getAnnouncementsFilterDto;
 
     const query =
@@ -119,6 +126,11 @@ export class AnnouncementService {
           product_category_id,
         },
       );
+    }
+    if (city_name) {
+      query.andWhere('(announcement.city = :city_name)', {
+        city_name,
+      });
     }
 
     try {
@@ -250,5 +262,28 @@ export class AnnouncementService {
 
     if (!announcements || announcements.length === 0) return 0;
     return announcements.length;
+  }
+
+  async checkIfYourAnnouncement(id: string, user: User): Promise<boolean> {
+    const announcement = await this.announcementsRepository.findOne({
+      where: { id_announcement: id },
+      relations: ['user'],
+    });
+
+    if (!announcement || !user) return false;
+    if (announcement.user.id === user.id) return true;
+    else return false;
+  }
+
+  async deleteAllUsersAnnouncements(user: User): Promise<void> {
+    const announcements = await this.announcementsRepository.findBy({ user });
+    for (const announcement of announcements) {
+      try {
+        await this.announcementsRepository.remove(announcement);
+      } catch (error) {
+        console.log(error.message);
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

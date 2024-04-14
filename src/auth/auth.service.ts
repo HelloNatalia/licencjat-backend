@@ -13,6 +13,12 @@ import { SignupAuthCredentialsDto } from './dto/signup-auth-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from 'jsonwebtoken';
 import { SigninAuthCredentialsDto } from './dto/signin-auth-credentials.dto';
+import { AddressService } from 'src/address/address.service';
+import { AnnouncementService } from 'src/announcement/announcement.service';
+import { RecipeService } from 'src/recipe/recipe.service';
+import { RatingService } from 'src/rating/rating.service';
+import { ReportService } from 'src/report/report.service';
+import { RequestService } from 'src/request/request.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +26,12 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
+    private addressService: AddressService,
+    private announcementService: AnnouncementService,
+    private recipeService: RecipeService,
+    private ratingService: RatingService,
+    private reportService: ReportService,
+    private requestService: RequestService,
   ) {}
 
   async signUp(
@@ -77,6 +89,14 @@ export class AuthService {
   }
 
   async deleteAccount(user: User): Promise<void> {
+    //adresy, ogłoszenia, ulubione przepisy, oceny, zgłoszenia, prośby, tymczasope produkt przepis, tymczasowe przepisy
+    await this.addressService.deleteAllUsersAddresses(user);
+    await this.requestService.deleteAllUsersRequests(user);
+    await this.announcementService.deleteAllUsersAnnouncements(user);
+    await this.recipeService.deleteAllUsersFavouriteRecipes(user);
+    await this.recipeService.deleteAllUsersTemporaryRecipes(user);
+    await this.ratingService.deleteAllUsersRatings(user);
+    await this.reportService.findAndDeleteUsersReports(user);
     try {
       await this.usersRepository.remove(user);
     } catch (error) {

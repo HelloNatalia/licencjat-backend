@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,6 +14,7 @@ import { ChangeRequestStatusDto } from './dto/changeRequestStatusDto';
 import { Status } from './status.enum';
 import { DeleteRequestDto } from './dto/deleteRequestDto';
 import { StatusAnnouncement } from 'src/announcement/status-announcement.enum';
+import { ReportService } from 'src/report/report.service';
 
 @Injectable()
 export class RequestService {
@@ -23,6 +25,7 @@ export class RequestService {
     private announcementsRepository: Repository<Announcement>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private reportsService: ReportService,
   ) {}
 
   async createRequest(
@@ -30,6 +33,9 @@ export class RequestService {
     user: User,
   ): Promise<void> {
     const { announcement, announcement_user, date, hour } = createRequestDto;
+    if (await this.reportsService.checkIfUserHasAcceptedReport(user)) {
+      throw new ForbiddenException();
+    }
     const announcementObj = await this.announcementsRepository.findOneBy({
       id_announcement: announcement,
     });
@@ -174,6 +180,27 @@ export class RequestService {
     } catch (error) {
       console.log(error.message);
       throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  async deleteAllUsersRequests(user: User): Promise<string> {
+    const requestsRequested = await this.requestsRepository.findBy({
+      id_user_request: user,
+    });
+    const requestsAnnouncement = await this.requestsRepository.findBy({
+      id_user_announcement: user,
+    });
+    try {
+      for (const requestRequested of requestsRequested) {
+        await this.requestsRepository.remove(requestRequested);
+      }
+      for (const requestAnnouncement of requestsAnnouncement) {
+        await this.requestsRepository.remove(requestAnnouncement);
+      }
+      return 'success';
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException();
     }
   }
 }

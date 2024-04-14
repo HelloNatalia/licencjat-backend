@@ -138,4 +138,24 @@ export class RatingService {
 
     return ratings;
   }
+
+  async deleteAllUsersRatings(user: User): Promise<void> {
+    const ratings_created = await this.ratingsRepository.findBy({
+      user_created: user,
+    });
+    const ratings_rated = await this.ratingsRepository.findBy({
+      user_rated: user,
+    });
+    try {
+      for (const rating_created of ratings_created) {
+        await this.ratingsRepository.remove(rating_created);
+      }
+      for (const rating_rated of ratings_rated) {
+        await this.ratingsRepository.remove(rating_rated);
+      }
+    } catch (error) {
+      console.log(error.message);
+      throw new InternalServerErrorException();
+    }
+  }
 }

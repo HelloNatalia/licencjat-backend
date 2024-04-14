@@ -9,6 +9,7 @@ import { RecipeCategory } from './recipe-category.entity';
 import { RecipeProduct } from './recipe-product.entity';
 import { User } from 'src/auth/user.entity';
 import { TemporaryRecipeProduct } from './temporary-recipe-product.entity';
+import { RecipeStatus } from './recipe-status.enum';
 
 @Entity()
 export class TemporaryRecipe {
@@ -29,6 +30,13 @@ export class TemporaryRecipe {
 
   @ManyToOne(() => RecipeCategory, (recipe_category) => recipe_category.recipe)
   recipe_category: RecipeCategory;
+
+  @Column({
+    type: 'enum',
+    enum: RecipeStatus,
+    default: RecipeStatus.Created,
+  })
+  status: RecipeStatus;
 
   @OneToMany(
     () => TemporaryRecipeProduct,

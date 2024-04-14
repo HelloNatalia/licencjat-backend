@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
@@ -53,9 +55,34 @@ export class RecipeController {
     return this.recipeService.createTemporaryRecipe(createRecipeDto, user);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('all-admin-panel')
+  getAllRecipesAdminPage(): Promise<Recipe[]> {
+    return this.recipeService.getAllRecipesAdminPage();
+  }
+
   @Get('all')
-  getAllRecipes(): Promise<RecipeProduct[]> {
-    return this.recipeService.getAllRecipes();
+  getAllRecipes(
+    @Query('id_recipe_category') id_recipe_category: string,
+  ): Promise<RecipeProduct[]> {
+    return this.recipeService.getAllRecipes(id_recipe_category);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('all-temporary')
+  getAllTemporaryRecipes(): Promise<TemporaryRecipe[]> {
+    return this.recipeService.getAllTemporaryRecipes();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('temporary/:id')
+  getTemporaryRecipe(
+    @Param('id') id: string,
+  ): Promise<TemporaryRecipeProduct[]> {
+    return this.recipeService.getTemporaryRecipe(id);
   }
 
   @Post()
@@ -121,5 +148,36 @@ export class RecipeController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.recipeService.deleteFavourite(user, id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Get('accept-recipe/:id')
+  acceptTemporaryRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.acceptTemporaryRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Delete('delete-temporary-recipe/:id')
+  deleteTemporaryRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.deleteTemporaryRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Delete('delete-recipe/:id')
+  deleteRecipe(@Param('id') id: string): Promise<void> {
+    return this.recipeService.deleteRecipe(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @Patch('edit-recipe/:id')
+  editRecipe(
+    @Param('id') id: string,
+    @Body() createRecipeDto: CreateRecipeDto,
+  ): Promise<void> {
+    return this.recipeService.editRecipe(id, createRecipeDto);
   }
 }

@@ -11,6 +11,9 @@ import { RequestModule } from './request/request.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { ReportModule } from './report/report.module';
 import { RatingModule } from './rating/rating.module';
+import { FileModule } from './file/file.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { RatingModule } from './rating/rating.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'assets'),
+    // }),
     AuthModule,
     AddressModule,
     ProductModule,
@@ -33,6 +39,7 @@ import { RatingModule } from './rating/rating.module';
     RecipeModule,
     ReportModule,
     RatingModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -37,6 +37,11 @@ export class AnnouncementController {
     );
   }
 
+  @Get('single-announcement/:id')
+  getSingleAnnouncement(@Param('id') id: string): Promise<Announcement> {
+    return this.announcementService.getAnnouncement(id);
+  }
+
   @Get()
   getAnnouncements(
     @Query() getAnnouncementsFilterDto: GetAnnouncementsFilterDto,
@@ -85,5 +90,15 @@ export class AnnouncementController {
       id,
       createAnnouncementDto,
     );
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Client)
+  @Get('check-if-your-announcement/:id')
+  checkIfYourAnnouncement(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<boolean> {
+    return this.announcementService.checkIfYourAnnouncement(id, user);
   }
 }

@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from 'src/product/product.entity';
 import { TemporaryRecipe } from './temporary-recipe.entity';
 
@@ -15,4 +15,7 @@ export class TemporaryRecipeProduct {
 
   @ManyToOne(() => Product, (product) => product.recipe_product)
   product: Product;
+
+  @Column()
+  amount: string;
 }

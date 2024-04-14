@@ -8,6 +8,9 @@ import { ProductCategory } from 'src/product_category/product_category.entity';
 import { Request } from 'src/request/request.entity';
 import { TakenProduct } from './taken-product.entity';
 import { User } from 'src/auth/user.entity';
+import { ReportService } from 'src/report/report.service';
+import { ReportModule } from 'src/report/report.module';
+import { Report } from 'src/report/report.entity';
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { User } from 'src/auth/user.entity';
     TypeOrmModule.forFeature([Request]),
     TypeOrmModule.forFeature([TakenProduct]),
     TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Report]),
+    ReportModule,
   ],
   controllers: [AnnouncementController],
-  providers: [AnnouncementService],
+  providers: [AnnouncementService, ReportService],
 })
 export class AnnouncementModule {}
