@@ -259,8 +259,9 @@ export class RecipeService {
       );
 
       if (existed !== undefined) {
-        const total: number = existed.all_products;
+        const total: number = existed.total;
         existed.have += 1;
+
         const have: number = existed.have;
         let missing: number = total - have;
         if (Number.isNaN(missing)) missing = 0;
