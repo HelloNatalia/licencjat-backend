@@ -79,6 +79,9 @@ Database:
 DevOps tool:
 - **Docker**
 
+API testing tool:
+- **Postman**
+
 Designs:
 - **Figma**
 
