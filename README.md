@@ -97,5 +97,6 @@ This is my second Nest.js application that I've developed independently, but it'
 ## 📞 Contact
 
 e-mail: nataliatucka01@gmail.com
+linkedin: [link](https://www.linkedin.com/in/natalia-tucka-93b617243/)
 
 
